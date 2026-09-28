@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>自定义创作挑战卡片生成器</title>
+  <!-- 引入 html2canvas 库用于一键导出高精图片 -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --bg-color: #f7f6f2;
+      --card-bg: #ffffff;
+      --text-color: #2b2b2b;
+      --accent-color: #8c7b75;
+      --border-color: #e2dfd8;
+    }
+
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: #eef0f3;
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    /* 控制面板 */
+    .control-panel {
+      width: 340px;
+      background: #fff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .control-panel h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 6px;
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 0.9rem;
+    }
+
+    .row-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    button.export-btn {
+      width: 100%;
+      padding: 12px;
+      background: #4a6fa5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 10px;
+    }
+
+    button.export-btn:hover {
+      background: #3b5984;
+    }
+
+    /* 画布区域 */
+    .canvas-container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    /* 将被导出的卡片主体 */
+    #challenge-card {
+      width: 520px;
+      padding: 40px;
+      background: var(--bg-color);
+      color: var(--text-color);
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .card-header {
+      text-align: center;
+    }
+
+    .card-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin: 0 0 8px 0;
+    }
+
+    .card-subtitle {
+      font-size: 0.85rem;
+      color: var(--accent-color);
+      letter-spacing: 1px;
+    }
+
+    /* 动态宫格布局 */
+    .grid-container {
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 14px;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .day-tag {
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: var(--accent-color);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 4px;
+    }
+
+    .day-content {
+      font-size: 0.88rem;
+      line-height: 1.4;
+      flex-grow: 1;
+    }
+
+    .card-footer {
+      text-align: right;
+      font-size: 0.8rem;
+      color: var(--accent-color);
+      border-top: 1px solid var(--border-color);
+      padding-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 左侧控制面板 -->
+  <div class="control-panel">
+    <h2>挑战卡片生成器</h2>
+    
+    <div class="row-group">
+      <div class="form-group" style="flex: 2;">
+        <label>主标题</label>
+        <input type="text" id="input-title" value="7天创作挑战">
+      </div>
+      <div class="form-group" style="flex: 1;">
+        <label>挑战天数</label>
+        <input type="number" id="input-day-count" min="1" max="30" value="7" onchange="updateDayCount()">
+      </div>
+    </div>
+
+    <div class="row-group">
+      <div class="form-group" style="flex: 1;">
+        <label>副标题/落款</label>
+        <input type="text" id="input-subtitle" value="文画双修 · 自我探索">
+      </div>
+      <div class="form-group" style="flex: 1;">
+        <label>每行卡片数</label>
+        <select id="input-columns" onchange="renderGrid()">
+          <option value="2" selected>2 列（适合短天数）</option>
+          <option value="3">3 列（适合多天数）</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>主题配色</label>
+      <select id="input-theme" onchange="changeTheme(this.value)">
+        <option value="warm">暖沙复古 (Default)</option>
+        <option value="dark">暗黑哥特</option>
+        <option value="paper">极简宣纸</option>
+        <option value="mint">冷调清霜</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>每天题目（每行一天，自动按天数截取）</label>
+      <textarea id="input-days" rows="10">Day 1：经典世界观 Paro（身份与气场）
+Day 2：命运岔路 If 线（选择与代价）
+Day 3：核心意象与氛围（自然与情绪）
+Day 4：局部镜头特写（细节与留白）
+Day 5：无声的张力对戏（潜台词与暗流）
+Day 6：异色与反差侧面（隐藏的悖论）
+Day 7：完全自由的摸鱼（本能与风格）</textarea>
+    </div>
+
+    <button class="export-btn" onclick="exportImage()">导出高精图片 (PNG)</button>
+  </div>
+
+  <!-- 右侧预览与导出区域 -->
+  <div class="canvas-container">
+    <div id="challenge-card">
+      <div class="card-header">
+        <h1 class="card-title" id="display-title">7天创作挑战</h1>
+        <div class="card-subtitle" id="display-subtitle">文画双修 · 自我探索</div>
+      </div>
+
+      <div class="grid-container" id="display-grid">
+        <!-- JS 动态生成格子 -->
+      </div>
+
+      <div class="card-footer" id="display-footer">
+        制表 / @九隐
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 更新天数与标题联动
+    function updateDayCount() {
+      const count = parseInt(document.getElementById('input-day-count').value) || 7;
+      const titleInput = document.getElementById('input-title');
+      
+      // 如果标题里带有 X天，自动同步更新
+      titleInput.value = titleInput.value.replace(/\d+天/, `${count}天`);
+      document.getElementById('display-title').innerText = titleInput.value;
+      
+      renderGrid();
+    }
+
+    // 动态渲染题目
+    function renderGrid() {
+      const count = parseInt(document.getElementById('input-day-count').value) || 7;
+      const cols = document.getElementById('input-columns').value;
+      const text = document.getElementById('input-days').value;
+      const lines = text.split('\n').filter(line => line.trim() !== '');
+      
+      const gridContainer = document.getElementById('display-grid');
+      gridContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      gridContainer.innerHTML = '';
+
+      for (let i = 0; i < count; i++) {
+        const lineText = lines[i] || `Day ${i+1}：未设置`;
+        const parts = lineText.split(/[:：]/);
+        const dayLabel = parts.length > 1 ? parts[0] : `DAY ${i+1}`;
+        const dayDetail = parts.length > 1 ? parts.slice(1).join('：') : lineText;
+
+        const item = document.createElement('div');
+        item.className = 'grid-item';
+        
+        // 天数如果是奇数且最后一天单出来，自动跨列填充保持美观
+        if (i === count - 1 && count % cols !== 0) {
+          item.style.gridColumn = `span ${cols - (count % cols) + 1}`;
+        }
+
+        item.innerHTML = `
+          <div class="day-tag">${dayLabel}</div>
+          <div class="day-content">${dayDetail}</div>
+        `;
+        gridContainer.appendChild(item);
+      }
+    }
+
+    // 绑定监听
+    document.getElementById('input-title').addEventListener('input', e => {
+      document.getElementById('display-title').innerText = e.target.value;
+    });
+    document.getElementById('input-subtitle').addEventListener('input', e => {
+      document.getElementById('display-subtitle').innerText = e.target.value;
+    });
+    document.getElementById('input-days').addEventListener('input', renderGrid);
+
+    // 配色方案切换
+    function changeTheme(theme) {
+      const root = document.documentElement;
+      if (theme === 'warm') {
+        root.style.setProperty('--bg-color', '#f7f6f2');
+        root.style.setProperty('--card-bg', '#ffffff');
+        root.style.setProperty('--text-color', '#2b2b2b');
+        root.style.setProperty('--accent-color', '#8c7b75');
+        root.style.setProperty('--border-color', '#e2dfd8');
+      } else if (theme === 'dark') {
+        root.style.setProperty('--bg-color', '#1a1a1a');
+        root.style.setProperty('--card-bg', '#262626');
+        root.style.setProperty('--text-color', '#e0e0e0');
+        root.style.setProperty('--accent-color', '#a0a0a0');
+        root.style.setProperty('--border-color', '#333333');
+      } else if (theme === 'paper') {
+        root.style.setProperty('--bg-color', '#faf8f5');
+        root.style.setProperty('--card-bg', '#f2efe9');
+        root.style.setProperty('--text-color', '#3d3b38');
+        root.style.setProperty('--accent-color', '#787267');
+        root.style.setProperty('--border-color', '#e0dacd');
+      } else if (theme === 'mint') {
+        root.style.setProperty('--bg-color', '#f0f4f3');
+        root.style.setProperty('--card-bg', '#ffffff');
+        root.style.setProperty('--text-color', '#223330');
+        root.style.setProperty('--accent-color', '#5a8078');
+        root.style.setProperty('--border-color', '#d5e0dc');
+      }
+    }
+
+    // 导出 PNG 图片
+    function exportImage() {
+      const card = document.getElementById('challenge-card');
+      html2canvas(card, {
+        scale: 2,
+        useCORS: true
+      }).then(canvas => {
+        const link = document.createElement('a');
+        const count = document.getElementById('input-day-count').value;
+        link.download = `${count}天创作挑战卡片.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    // 初始化渲染
+    renderGrid();
+  </script>
+</body>
+</html>
