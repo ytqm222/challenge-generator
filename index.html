@@ -1,152 +1,666 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>创作挑战卡片生成器</title>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>创作挑战卡片生成器 - 字体排版增强版</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- html-to-image 导出库 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+  
+  <!-- 引入内置开源中文字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- 引入霞鹜文楷 CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.1.0/style.css" />
+
   <style>
-    :root { --bg: #f7f6f2; --item: #fff; --text: #2b2b2b; --sub: #8c7b75; --border: #e2dfd8; }
-    .theme-dark { --bg: #18181b; --item: #27272a; --text: #f4f4f5; --sub: #a1a1aa; --border: #3f3f46; }
-    .theme-paper { --bg: #faf8f5; --item: #f2efe9; --text: #3d3b38; --sub: #787267; --border: #e0dacd; }
-    .theme-mint { --bg: #f0f4f3; --item: #ffffff; --text: #223330; --sub: #5a8078; --border: #d5e0dc; }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
-    body { background: #f1f5f9; color: #334155; padding: 20px; display: flex; gap: 20px; justify-content: center; }
-    .panel { width: 380px; background: #fff; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-col; gap: 12px; }
-    .form-group { display: flex; flex-direction: column; gap: 4px; }
-    label { font-size: 12px; font-weight: 600; color: #64748b; }
-    input, select, textarea { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none; }
-    .row { display: flex; gap: 8px; }
-    .btn { padding: 8px 12px; border-radius: 6px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-    .btn-primary { background: #4f46e5; color: #fff; width: 100%; }
-    .btn-sub { background: #e0e7ff; color: #4338ca; width: 100%; }
-    .day-item { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-    .day-tag { font-size: 12px; font-weight: bold; width: 45px; color: #64748b; text-align: right; }
-    .del-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 14px; padding: 0 4px; }
-    #days-box { max-height: 220px; overflow-y: auto; padding-right: 4px; }
-    
-    /* 预览区卡片 */
-    #card { width: 480px; background: var(--bg); color: var(--text); border-radius: 12px; padding: 28px; display: flex; flex-direction: column; gap: 20px; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
-    .card-head { text-align: center; }
-    .card-title { font-size: 20px; font-weight: bold; margin-bottom: 4px; }
-    .card-sub { font-size: 12px; color: var(--sub); }
-    .card-grid { display: grid; gap: 10px; }
-    .card-item { background: var(--item); border: 1px solid var(--border); padding: 10px; border-radius: 8px; font-size: 12px; }
-    .card-item-tag { font-weight: bold; font-size: 10px; color: var(--sub); margin-bottom: 4px; border-bottom: 1px solid var(--border); padding-bottom: 2px; }
-    .card-foot { font-size: 11px; color: var(--sub); display: flex; justify-content: space-between; border-top: 1px solid var(--border); pt: 8px; margin-top: 10px; }
+    /* 定义内置字体类 */
+    .font-sans-default { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .font-noto-sans { font-family: 'Noto Sans SC', sans-serif; }
+    .font-noto-serif { font-family: 'Noto Serif SC', serif; }
+    .font-lxgw { font-family: 'LXGW WenKai', cursive, serif; }
+
+    /* CSS 主题变量定义 */
+    .theme-warm {
+      --card-bg: #fbf9f5;
+      --text-main: #2c2421;
+      --text-sub: #8c7a6b;
+      --border-color: #e8e2d5;
+      --item-bg: #ffffff;
+    }
+    .theme-dark {
+      --card-bg: #18181b;
+      --text-main: #f4f4f5;
+      --text-sub: #a1a1aa;
+      --border-color: #27272a;
+      --item-bg: #27272a;
+    }
+    .theme-paper {
+      --card-bg: #f4f4f0;
+      --text-main: #1a1a1a;
+      --text-sub: #666666;
+      --border-color: #dcdcd0;
+      --item-bg: #fafafa;
+    }
+    .theme-mint {
+      --card-bg: #f0fdf4;
+      --text-main: #14532d;
+      --text-sub: #4ade80;
+      --border-color: #bbf7d0;
+      --item-bg: #ffffff;
+    }
+
+    #render-card-node {
+      background-color: var(--card-bg);
+      color: var(--text-main);
+    }
+    .card-item-box {
+      background-color: var(--item-bg);
+      border: 1px solid var(--border-color);
+    }
   </style>
-  <style id="custom-css"></style>
+</head>
+<body class="bg-slate-100 min-h-screen p-4 md:p-8 font-sans">
+
+<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+  
+  <!-- 左侧控制面板 -->
+  <section class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+    
+    <div class="border-b border-slate-100 pb-4 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <span>⚙️</span> 参数与设计配置
+        </h2>
+        <p class="text-xs text-slate-500 mt-1">支持细粒度控制标题、Days及正文字体样式</p>
+      </div>
+    </div>
+
+    <!-- 选项卡导航 -->
+    <div class="flex border-b border-slate-200 gap-3 text-xs font-semibold overflow-x-auto">
+      <button id="tab-btn-content" onclick="switchTab('content')" class="pb-2 border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap">基础内容</button>
+      <button id="tab-btn-font" onclick="switchTab('font')" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">🔤 字体排版</button>
+      <button id="tab-btn-bg" onclick="switchTab('bg')" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">🖼️ 背景图设置</button>
+      <button id="tab-btn-css" onclick="switchTab('css')" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">🎨 自定义 CSS</button>
+    </div>
+
+    <!-- Tab 1: 基础内容设置 -->
+    <div id="tab-panel-content" class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">主标题</label>
+        <input id="cfg-title" type="text" value="7天文画双修创作挑战" oninput="renderCard()"
+          class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">副标题</label>
+          <input id="cfg-subtitle" type="text" value="探索作者性与大众性的平衡" oninput="renderCard()"
+            class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">制表落款</label>
+          <input id="cfg-author" type="text" value="制表 / @九隐" oninput="renderCard()"
+            class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800">
+        </div>
+      </div>
+
+      <!-- 布局与预设 -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">每行列数</label>
+          <select id="cfg-cols" onchange="renderCard()" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800 bg-white">
+            <option value="1">1 列</option>
+            <option value="2" selected>2 列</option>
+            <option value="3">3 列</option>
+            <option value="4">4 列</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">预设配色</label>
+          <select id="cfg-theme" onchange="renderCard()" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800 bg-white">
+            <option value="warm" selected>暖沙复古</option>
+            <option value="dark">暗黑哥特</option>
+            <option value="paper">极简宣纸</option>
+            <option value="mint">冷调清霜</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">每日题目列表 (每行一天)</label>
+        <textarea id="cfg-days-text" rows="7" oninput="renderCard()"
+          class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-xs leading-relaxed font-mono text-slate-700 resize-y">Day 1: 经典世界观 Paro（身份与气场）
+Day 2: 命运岔路 If 线（选择与代价）
+Day 3: 核心意象与氛围（自然与情绪）
+Day 4: 局部镜头特写（细节与留白）
+Day 5: 无声的张力对戏（潜台词与暗流）
+Day 6: 异色与反差侧面（隐藏的悖论）
+Day 7: 完全自由的摸鱼（本能与风格）</textarea>
+      </div>
+    </div>
+
+    <!-- Tab 2: 字体与排版设置 -->
+    <div id="tab-panel-font" class="space-y-5 hidden">
+      <!-- 1. 标题排版设置 -->
+      <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+        <div class="text-xs font-bold text-slate-700 flex items-center justify-between">
+          <span>📌 主标题 (Title)</span>
+          <input type="color" id="font-title-color" value="#2c2421" onchange="renderCard()" class="w-6 h-6 rounded cursor-pointer border-0">
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="text-[10px] text-slate-500 block mb-1">字体选择</label>
+            <select id="font-title-family" onchange="renderCard()" class="w-full text-xs p-1.5 rounded border border-slate-200 bg-white">
+              <option value="font-sans-default">默认无衬线</option>
+              <option value="font-noto-sans">思源黑体</option>
+              <option value="font-noto-serif" selected>思源宋体</option>
+              <option value="font-lxgw">霞鹜文楷</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-500 block mb-1">字重 (Weight)</label>
+            <select id="font-title-weight" onchange="renderCard()" class="w-full text-xs p-1.5 rounded border border-slate-200 bg-white">
+              <option value="font-normal">常规 (400)</option>
+              <option value="font-semibold">中粗 (600)</option>
+              <option value="font-bold" selected>加粗 (700)</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-500 block mb-1">字号 (<span id="title-size-val">24</span>px)</label>
+            <input type="range" id="font-title-size" min="16" max="36" value="24" oninput="renderCard()" class="w-full accent-indigo-600">
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Days 标签排版设置 -->
+      <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+        <div class="text-xs font-bold text-slate-700 flex items-center justify-between">
+          <span>🏷️ Days 标签 (Days Tag)</span>
+          <input type="color" id="font-tag-color" value="#8c7a6b" onchange="renderCard()" class="w-6 h-6 rounded cursor-pointer border-0">
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="text-[10px] text-slate-500 block mb-1">字体选择</label>
+            <select id="font-tag-family" onchange="renderCard()" class="w-full text-xs p-1.5 rounded border border-slate-200 bg-white">
+              <option value="font-sans-default" selected>默认无衬线</option>
+              <option value="font-noto-sans">思源黑体</option>
+              <option value="font-noto-serif">思源宋体</option>
+              <option value="font-lxgw">霞鹜文楷</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-500 block mb-1">字重 (Weight)</label>
+            <select id="font-tag-weight" onchange="renderCard()" class="w-full text-xs p-1.5 rounded border border-slate-200 bg-white">
+              <option value="font-normal">常规 (400)</option>
+              <option value="font-semibold">中粗 (600)</option>
+              <option value="font-bold" selected>加粗 (700)</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-500 block mb-1">字号 (<span id="tag-size-val">10</span>px)</label>
+            <input type="range" id="font-tag-size" min="8" max="16" value="10" oninput="renderCard()" class="w-full accent-indigo-600">
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 正文题目排版设置 -->
+      <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+        <div class="text-xs font-bold text-slate-700 flex items-center justify-between">
+          <span>📝 正文题目 (Content)</span>
+          <input type="color" id="font-body-color" value="#2c2421" onchange="renderCard()" class="w-6 h-6 rounded cursor-pointer border-0">
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="text-[10px] text-slate-500 block mb-1">字体选择</label>
+            <select id="font-body-family" onchange="renderCard()" class="w-full text-xs p-1.5 rounded border border-slate-200 bg-white">
+              <option value="font-sans-default">默认无衬线</option>
+              <option value="font-noto-sans">思源黑体</option>
+              <option value="font-noto-serif">思源宋体</option>
+              <option value="font-lxgw" selected>霞鹜文楷</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-500 block mb-1">字重 (Weight)</label>
+            <select id="font-body-weight" onchange="renderCard()" class="w-full text-xs p-1.5 rounded border border-slate-200 bg-white">
+              <option value="font-normal">常规 (400)</option>
+              <option value="font-medium" selected>适中 (500)</option>
+              <option value="font-bold">加粗 (700)</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-500 block mb-1">字号 (<span id="body-size-val">12</span>px)</label>
+            <input type="range" id="font-body-size" min="10" max="20" value="12" oninput="renderCard()" class="w-full accent-indigo-600">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: 自定义背景图 -->
+    <div id="tab-panel-bg" class="space-y-4 hidden">
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">上传卡片背景图</label>
+        <input type="file" id="cfg-bg-file" accept="image/*" onchange="handleBgUpload(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">平铺模式</label>
+          <select id="cfg-bg-size" onchange="updateBgStyles()" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs bg-white">
+            <option value="cover" selected>完全覆盖 (Cover)</option>
+            <option value="contain">等比缩放 (Contain)</option>
+            <option value="100% 100%">拉伸填充</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">遮罩浓度</label>
+          <input id="cfg-bg-opacity" type="range" min="0" max="1" step="0.05" value="0.2" oninput="updateBgStyles()" class="w-full accent-indigo-600">
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: 自定义 CSS -->
+    <div id="tab-panel-css" class="space-y-4 hidden">
+      <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-xs leading-relaxed">
+        <p class="font-bold flex items-center gap-1 mb-0.5">
+          <span>⚠️</span> 高级自定义 CSS 提示
+        </p>
+        <p class="text-[11px] text-amber-700">
+          请仅输入纯 CSS 样式规则（如 <code>.card-item-box { border-radius: 12px; }</code>）。请勿粘贴带有 HTML 标签的代码。
+        </p>
+      </div>
+
+      <details class="group bg-slate-50 rounded-xl border border-slate-200 overflow-hidden transition-all">
+        <summary class="flex justify-between items-center p-3 text-xs font-semibold text-slate-700 cursor-pointer select-none bg-slate-100/70 hover:bg-slate-100">
+          <span class="flex items-center gap-1.5">
+            <span>🛠️</span> 展开 CSS 编辑区域
+          </span>
+          <span class="transition-transform group-open:rotate-180 text-slate-400">▼</span>
+        </summary>
+
+        <div class="p-3 space-y-3 bg-white">
+          <textarea id="cfg-custom-css" rows="6" oninput="applyCustomCSS()" 
+            placeholder="/* 示例：给卡片加上圆角和阴影 */&#10;#render-card-node { border-radius: 20px; }&#10;.card-item-box { border-color: #6366f1; }"
+            class="w-full p-3 rounded-lg border border-slate-200 text-xs font-mono text-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none resize-y"></textarea>
+
+          <div class="flex justify-between items-center text-[11px]">
+            <span id="css-status" class="text-slate-400">状态: 正常</span>
+            <button onclick="clearCustomCSS()" class="px-2.5 py-1 text-rose-600 hover:bg-rose-50 rounded border border-rose-200 transition">
+              清空自定义 CSS
+            </button>
+          </div>
+        </div>
+      </details>
+    </div>
+
+</Step>
+
+<title>可复制的 CSS 代码块组件</title>
+  <style>
+    /* 1. 代码块外层容器 */
+    .code-block-container {
+      position: relative;
+      background-color: #1e1e2e; /* 优雅深色背景 */
+      border-radius: 12px;
+      border: 1px solid #313244;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      margin: 20px 0;
+      overflow: hidden;
+      font-family: "Fira Code", Consolas, Monaco, "Courier New", monospace;
+    }
+
+    /* 2. 顶部工具栏（显示语言标识与复制按钮） */
+    .code-block-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      background-color: #181825;
+      border-bottom: 1px solid #313244;
+    }
+
+    .code-block-language {
+      font-size: 12px;
+      color: #cdd6f4;
+      text-transform: uppercase;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    /* 3. 复制按钮样式 */
+    .copy-btn {
+      background-color: #313244;
+      color: #cdd6f4;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .copy-btn:hover {
+      background-color: #45475a;
+      color: #ffffff;
+    }
+
+    .copy-btn.copied {
+      background-color: #a6e3a1;
+      color: #11111b;
+    }
+
+    /* 4. 代码渲染核心区域 */
+    .code-block-body {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto; /* 超长代码横向滚动 */
+    }
+
+    .code-block-body code {
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #cdd6f4;
+      white-space: pre; /* 保留所有空格与换行，绝不乱序 */
+      word-spacing: normal;
+      word-break: normal;
+      tab-size: 2;
+    }
+
+    /* 自定义美化滚动条 */
+    .code-block-body::-webkit-scrollbar {
+      height: 8px;
+    }
+    .code-block-body::-webkit-scrollbar-thumb {
+      background: #45475a;
+      border-radius: 4px;
+    }
+    .code-block-body::-webkit-scrollbar-track {
+      background: #1e1e2e;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- 控制面板 -->
-  <div class="panel">
-    <div class="form-group"><label>主标题</label><input id="title" value="7天文画双修创作挑战"></div>
-    <div class="row">
-      <div class="form-group" style="flex:1"><label>副标题</label><input id="subtitle" value="探索作者性与大众性的平衡"></div>
-      <div class="form-group" style="flex:1"><label>落款</label><input id="author" value="制表 / @九隐"></div>
+  <!-- 代码块组件开始 -->
+  <div class="code-block-container">
+    <div class="code-block-header">
+      <span class="code-block-language">CSS</span>
+      <button class="copy-btn" onclick="copyCodeSnippet(this)">
+        <span class="btn-text">复制</span>
+      </button>
     </div>
-    <div class="row">
-      <div class="form-group" style="flex:1"><label>列数</label>
-        <select id="cols"><option value="1">1列</option><option value="2" selected>2列</option><option value="3">3列</option></select>
-      </div>
-      <div class="form-group" style="flex:1"><label>主题</label>
-        <select id="theme"><option value="warm">暖沙</option><option value="dark">暗黑</option><option value="paper">宣纸</option><option value="mint">冷调</option></select>
-      </div>
-    </div>
+    <pre class="code-block-body"><code id="css-snippet">/* 渐变艺术框与圆角效果 */
+#render-card-node {
+  background: linear-gradient(135deg, #F9CDAD 0%, #FC9D9A 100%) !important;
+  color: #2D3748 !important;
+}
 
-    <div class="form-group">
-      <label>每日题目</label>
-      <div id="days-box"></div>
-      <button class="btn btn-sub" onclick="addDay()">➕ 新增一天</button>
-    </div>
+.card-item {
+  background: rgba(255, 255, 255, 0.45) !important;
+  border-color: #83AF9B !important;
+  backdrop-filter: blur(4px);
+  border-radius: 12px !important;
+}
 
-    <div class="form-group">
-      <label>自定义 CSS (可选)</label>
-      <textarea id="css-in" rows="3" placeholder="#card { ... } .card-item { ... }"></textarea>
-    </div>
-
-    <button class="btn btn-primary" onclick="exportPNG()">导出高清 PNG</button>
+#card-title-node {
+  color: #FE4365 !important;
+}</code></pre>
   </div>
-
-  <!-- 卡片预览区 -->
-  <div>
-    <div id="card" class="theme-warm">
-      <div class="card-head">
-        <div id="v-title" class="card-title"></div>
-        <div id="v-sub" class="card-sub"></div>
-      </div>
-      <div id="v-grid" class="card-grid"></div>
-      <div class="card-foot">
-        <span>CHALLENGE ACCEPTED</span>
-        <span id="v-author"></span>
-      </div>
-    </div>
-  </div>
+  <!-- 代码块组件结束 -->
 
   <script>
-    let list = [
-      "经典世界观 Paro（身份与气场）", "命运岔路 If 线（选择与代价）",
-      "核心意象与氛围（自然与情绪）", "局部镜头特写（细节与留白）",
-      "无声的张力对戏（潜台词与暗流）", "异色与反差侧面（隐藏的悖论）",
-      "完全自由的摸鱼（本能与风格）"
-    ];
+    function copyCodeSnippet(button) {
+      // 获取 <code> 标签内的纯文本内容
+      const codeElement = button.closest('.code-block-container').querySelector('code');
+      const textToCopy = codeElement.innerText;
 
-    const $ = id => document.getElementById(id);
+      // 使用现代 Clipboard API 执行复制
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const btnText = button.querySelector('.btn-text');
+        
+        // 更改按钮文字和样式反馈
+        btnText.innerText = '已复制！';
+        button.classList.add('copied');
 
-    function renderInputs() {
-      $('days-box').innerHTML = list.map((text, i) => `
-        <div class="day-item">
-          <span class="day-tag">Day ${i+1}</span>
-          <input value="${text.replace(/"/g, '&quot;')}" oninput="list[${i}]=this.value;updateCard()">
-          <button class="del-btn" onclick="delDay(${i})">✕</button>
-        </div>
-      `).join('');
-    }
-
-    function addDay() {
-      list.push(`Day ${list.length + 1} 题目`);
-      renderInputs();
-      updateCard();
-    }
-
-    function delDay(i) {
-      if (list.length <= 1) return;
-      list.splice(i, 1);
-      renderInputs();
-      updateCard();
-    }
-
-    function updateCard() {
-      $('v-title').innerText =$('title').value || '创作挑战';
-      $('v-sub').innerText =$('subtitle').value;
-      $('v-author').innerText =$('author').value;
-      $('custom-css').innerHTML =$('css-in').value;
-
-      $('card').className = `theme-${$('theme').value}`;
-      
-      const cols = parseInt($('cols').value);$('v-grid').style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-      
-      $('v-grid').innerHTML = list.map((item, i) => `
-        <div class="card-item">
-          <div class="card-item-tag">DAY ${i+1}</div>
-          <div>${item || '待输入'}</div>
-        </div>
-      `).join('');
-    }
-
-    function exportPNG() {
-      html2canvas($('card'), { scale: 2.5 }).then(canvas => {
-        const a = document.createElement('a');
-        a.download = `${$('title').value}.png`;
-        a.href = canvas.toDataURL();
-        a.click();
+        // 2秒后恢复原状
+        setTimeout(() => {
+          btnText.innerText = '复制';
+          button.classList.remove('copied');
+        }, 2000);
+      }).catch(err => {
+        console.error('复制失败:', err);
       });
     }
-
-    ['title','subtitle','author','cols','theme','css-in'].forEach(id => $(id).oninput = updateCard);
-
-    renderInputs();
-    updateCard();
   </script>
+
+</body>
+</html>
+
+
+    <!-- 导出按钮 -->
+    <div class="pt-4 border-t border-slate-100">
+      <button onclick="exportPNG()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl shadow-lg shadow-indigo-200 transition">导出高清 PNG 卡片</button>
+    </div>
+
+  </section>
+
+  <!-- 右侧预览区域 -->
+  <section class="lg:col-span-7 flex flex-col items-center justify-start w-full">
+    <div class="w-full flex items-center justify-between mb-3 text-xs text-slate-500 px-1">
+      <span>👁️ 实时预览 (支持自定义字体与排版)</span>
+      <span>标准渲染宽度: 520px</span>
+    </div>
+
+    <div class="p-4 bg-slate-200/60 rounded-2xl border border-slate-300/50 w-full flex justify-center overflow-x-auto">
+      
+      <!-- 渲染卡片目标节点 -->
+      <div id="render-card-node" class="w-[520px] transition-all duration-300 p-8 flex flex-col justify-between gap-6 shadow-2xl rounded-xl relative overflow-hidden theme-warm">
+        
+        <div id="card-bg-layer" class="absolute inset-0 bg-center bg-no-repeat pointer-events-none z-0" style="display: none;"></div>
+        <div id="card-overlay-layer" class="absolute inset-0 pointer-events-none z-0" style="background-color: var(--card-bg); opacity: 0.2; display: none;"></div>
+
+        <div class="relative z-10 flex flex-col justify-between h-full gap-6">
+          
+          <!-- 页头 -->
+          <header class="text-center space-y-2">
+            <h2 id="card-title-node" class="tracking-wide">7天文画双修创作挑战</h2>
+            <div id="card-subtitle-node" class="text-xs tracking-wider opacity-80 uppercase" style="color: var(--text-sub);">探索作者性与大众性的平衡</div>
+          </header>
+
+          <!-- 每日题目网格 -->
+          <div id="card-grid-node" class="grid gap-3 my-2"></div>
+
+          <!-- 页脚 -->
+          <footer class="pt-3 border-t flex justify-between items-center text-[11px]" style="border-color: var(--border-color); color: var(--text-sub);">
+            <span class="tracking-widest uppercase">CHALLENGE ACCEPTED</span>
+            <span id="card-author-node">制表 / @九隐</span>
+          </footer>
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<style id="dynamic-custom-style"></style>
+
+<script>
+  // Tab 切换逻辑
+  function switchTab(tab) {
+    const tabs = ['content', 'font', 'bg', 'css'];
+    tabs.forEach(t => {
+      const btn = document.getElementById(`tab-btn-${t}`);
+      const panel = document.getElementById(`tab-panel-${t}`);
+      if (t === tab) {
+        btn.className = "pb-2 border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap";
+        panel.classList.remove('hidden');
+      } else {
+        btn.className = "pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap";
+        panel.classList.add('hidden');
+      }
+    });
+  }
+
+  // 主渲染函数
+  function renderCard() {
+    // 1. 文案填充
+    const titleText = document.getElementById('cfg-title').value || '创作挑战';
+    const titleNode = document.getElementById('card-title-node');
+    titleNode.innerText = titleText;
+    document.getElementById('card-subtitle-node').innerText = document.getElementById('cfg-subtitle').value || '';
+    document.getElementById('card-author-node').innerText = document.getElementById('cfg-author').value || '';
+
+    // 2. 主题与列数
+    const cardNode = document.getElementById('render-card-node');
+    const theme = document.getElementById('cfg-theme').value;
+    cardNode.className = `w-[520px] transition-all duration-300 p-8 flex flex-col justify-between gap-6 shadow-2xl rounded-xl relative overflow-hidden theme-${theme}`;
+
+    const cols = document.getElementById('cfg-cols').value;
+    const gridNode = document.getElementById('card-grid-node');
+    gridNode.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+
+    // 3. 读取并应用标题字体排版参数
+    const titleFont = document.getElementById('font-title-family').value;
+    const titleWeight = document.getElementById('font-title-weight').value;
+    const titleSize = document.getElementById('font-title-size').value;
+    const titleColor = document.getElementById('font-title-color').value;
+
+    document.getElementById('title-size-val').innerText = titleSize;
+    titleNode.className = `${titleFont} ${titleWeight} tracking-wide`;
+    titleNode.style.fontSize = `${titleSize}px`;
+    titleNode.style.color = titleColor;
+
+    // 4. 读取 Days 和 正文排版配置
+    const tagFont = document.getElementById('font-tag-family').value;
+    const tagWeight = document.getElementById('font-tag-weight').value;
+    const tagSize = document.getElementById('font-tag-size').value;
+    const tagColor = document.getElementById('font-tag-color').value;
+    document.getElementById('tag-size-val').innerText = tagSize;
+
+    const bodyFont = document.getElementById('font-body-family').value;
+    const bodyWeight = document.getElementById('font-body-weight').value;
+    const bodySize = document.getElementById('font-body-size').value;
+    const bodyColor = document.getElementById('font-body-color').value;
+    document.getElementById('body-size-val').innerText = bodySize;
+
+    // 5. 渲染网格题目
+    const textRaw = document.getElementById('cfg-days-text').value;
+    const lines = textRaw.split('\n').filter(line => line.trim() !== '');
+    
+    gridNode.innerHTML = '';
+    lines.forEach((line, index) => {
+      let tag = `Day ${index + 1}`;
+      let content = line.trim();
+
+      if (line.includes(':') || line.includes('：')) {
+        const parts = line.split(/[:：]/);
+        tag = parts[0].trim();
+        content = parts.slice(1).join(':').trim();
+      }
+
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'card-item-box p-3 rounded-lg flex flex-col gap-1 transition-all';
+      itemDiv.innerHTML = `
+        <div class="${tagFont} ${tagWeight} tracking-wider uppercase border-b pb-1 mb-1" 
+             style="font-size: ${tagSize}px; color: ${tagColor}; border-color: var(--border-color);">${tag}</div>
+        <div class="${bodyFont} ${bodyWeight} leading-snug" 
+             style="font-size: ${bodySize}px; color: ${bodyColor};">${content}</div>
+      `;
+      gridNode.appendChild(itemDiv);
+    });
+  }
+
+  // 背景图片上传与处理
+  let bgImageData = '';
+  function handleBgUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function( event ) {
+      bgImageData = event.target.result;
+      updateBgStyles();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function updateBgStyles() {
+    const bgLayer = document.getElementById('card-bg-layer');
+    const overlayLayer = document.getElementById('card-overlay-layer');
+    const opacity = document.getElementById('cfg-bg-opacity').value;
+    const bgSize = document.getElementById('cfg-bg-size').value;
+
+    if (bgImageData) {
+      bgLayer.style.display = 'block';
+      bgLayer.style.backgroundImage = `url(${bgImageData})`;
+      bgLayer.style.backgroundSize = bgSize;
+
+      overlayLayer.style.display = 'block';
+      overlayLayer.style.opacity = opacity;
+    } else {
+      bgLayer.style.display = 'none';
+      overlayLayer.style.display = 'none';
+    }
+  }
+
+  // 净化与应用自定义 CSS
+  function applyCustomCSS() {
+    const rawInput = document.getElementById('cfg-custom-css').value;
+    const statusNode = document.getElementById('css-status');
+
+    if (/<[a-z][\s\S]*>/i.test(rawInput)) {
+      statusNode.innerText = "⚠️ 检测到 HTML 标签，已自动忽略";
+      statusNode.className = "text-amber-600 font-medium";
+      return;
+    }
+
+    let cleanCSS = rawInput.replace(/<\/?script[^>]*>/gi, "");
+    cleanCSS = cleanCSS.replace(/<\/?style[^>]*>/gi, "");
+
+    document.getElementById('dynamic-custom-style').textContent = cleanCSS;
+
+    statusNode.innerText = "✓ CSS 格式已生效";
+    statusNode.className = "text-emerald-600 font-medium";
+  }
+
+  // 一键清空 CSS 恢复默认
+  function clearCustomCSS() {
+    document.getElementById('cfg-custom-css').value = '';
+    document.getElementById('dynamic-custom-style').textContent = '';
+    document.getElementById('css-status').innerText = "已重置";
+    document.getElementById('css-status').className = "text-slate-400";
+  }
+
+  // PNG 导出函数
+  function exportPNG() {
+    const node = document.getElementById('render-card-node');
+    htmlToImage.toPng(node, { pixelRatio: 2.5 })
+      .then(function (dataUrl) {
+        const link = document.createElement('a');
+        link.download = `${document.getElementById('cfg-title').value || 'challenge-card'}.png`;
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch(function (error) {
+        console.error('导出图片失败:', error);
+        alert('导出失败，请检查网络或浏览器是否支持。');
+      });
+  }
+
+  window.onload = function() {
+    renderCard();
+  };
+</script>
+
 </body>
 </html>
