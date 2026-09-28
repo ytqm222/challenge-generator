@@ -1,720 +1,152 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>创作挑战卡片生成器 - Challenge Card Generator</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>创作挑战卡片生成器</title>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <style id="base-styles">
-    /* Base CSS Variables & Reset */
-    :root {
-      --card-bg: #f7f6f2;
-      --item-bg: #ffffff;
-      --text-main: #2b2b2b;
-      --text-sub: #8c7b75;
-      --border-color: #e2dfd8;
-      --font-title: 'Noto Serif SC', serif;
-      --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
-    }
-
-    /* Preset Themes */
-    .theme-warm {
-      --card-bg: #f7f6f2;
-      --item-bg: #ffffff;
-      --text-main: #2b2b2b;
-      --text-sub: #8c7b75;
-      --border-color: #e2dfd8;
-    }
-
-    .theme-dark {
-      --card-bg: #18181b;
-      --item-bg: #27272a;
-      --text-main: #f4f4f5;
-      --text-sub: #a1a1aa;
-      --border-color: #3f3f46;
-    }
-
-    .theme-paper {
-      --card-bg: #faf8f5;
-      --item-bg: #f2efe9;
-      --text-main: #3d3b38;
-      --text-sub: #787267;
-      --border-color: #e0dacd;
-    }
-
-    .theme-mint {
-      --card-bg: #f0f4f3;
-      --item-bg: #ffffff;
-      --text-main: #223330;
-      --text-sub: #5a8078;
-      --border-color: #d5e0dc;
-    }
-
-    body {
-      font-family: var(--font-body);
-    }
-
-    .font-serif-custom {
-      font-family: var(--font-title);
-    }
-
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.05);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 9999px;
-    }
-  </style>
-
-  <!-- User Custom Styles Placeholder -->
-  <style id="user-custom-styles"></style>
-</head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between antialiased selection:bg-slate-200">
-
-  <header class="w-full bg-white/80 backdrop-blur border-b border-slate-200 px-6 py-4 sticky top-0 z-30 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
-        ✨
-      </div>
-      <div>
-        <h1 class="font-bold text-slate-900 leading-none text-base">创作挑战卡片生成器</h1>
-        <p class="text-xs text-slate-500 mt-1">Vibe Challenge Card Studio · 自定义CSS & 背景图增强版</p>
-      </div>
-    </div>
-    <div class="flex items-center gap-2">
-      <button onclick="exportCardImage()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium shadow-sm hover:shadow transition-all flex items-center gap-2 active:scale-95">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-        <span>导出高清卡片 (PNG)</span>
-      </button>
-    </div>
-  </header>
-
-  <main class="max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+  <style>
+    :root { --bg: #f7f6f2; --item: #fff; --text: #2b2b2b; --sub: #8c7b75; --border: #e2dfd8; }
+    .theme-dark { --bg: #18181b; --item: #27272a; --text: #f4f4f5; --sub: #a1a1aa; --border: #3f3f46; }
+    .theme-paper { --bg: #faf8f5; --item: #f2efe9; --text: #3d3b38; --sub: #787267; --border: #e0dacd; }
+    .theme-mint { --bg: #f0f4f3; --item: #ffffff; --text: #223330; --sub: #5a8078; --border: #d5e0dc; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+    body { background: #f1f5f9; color: #334155; padding: 20px; display: flex; gap: 20px; justify-content: center; }
+    .panel { width: 380px; background: #fff; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-col; gap: 12px; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    label { font-size: 12px; font-weight: 600; color: #64748b; }
+    input, select, textarea { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none; }
+    .row { display: flex; gap: 8px; }
+    .btn { padding: 8px 12px; border-radius: 6px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-primary { background: #4f46e5; color: #fff; width: 100%; }
+    .btn-sub { background: #e0e7ff; color: #4338ca; width: 100%; }
+    .day-item { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .day-tag { font-size: 12px; font-weight: bold; width: 45px; color: #64748b; text-align: right; }
+    .del-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 14px; padding: 0 4px; }
+    #days-box { max-height: 220px; overflow-y: auto; padding-right: 4px; }
     
-    <!-- Left Column: Interactive Control Panel -->
-    <section class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-      
-      <div class="border-b border-slate-100 pb-4 flex items-center justify-between">
-        <div>
-          <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <span>⚙️</span> 参数与设计配置
-          </h2>
-          <p class="text-xs text-slate-500 mt-1">支持自由上传背景与写CSS强化排版</p>
-        </div>
+    /* 预览区卡片 */
+    #card { width: 480px; background: var(--bg); color: var(--text); border-radius: 12px; padding: 28px; display: flex; flex-direction: column; gap: 20px; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+    .card-head { text-align: center; }
+    .card-title { font-size: 20px; font-weight: bold; margin-bottom: 4px; }
+    .card-sub { font-size: 12px; color: var(--sub); }
+    .card-grid { display: grid; gap: 10px; }
+    .card-item { background: var(--item); border: 1px solid var(--border); padding: 10px; border-radius: 8px; font-size: 12px; }
+    .card-item-tag { font-weight: bold; font-size: 10px; color: var(--sub); margin-bottom: 4px; border-bottom: 1px solid var(--border); padding-bottom: 2px; }
+    .card-foot { font-size: 11px; color: var(--sub); display: flex; justify-content: space-between; border-top: 1px solid var(--border); pt: 8px; margin-top: 10px; }
+  </style>
+  <style id="custom-css"></style>
+</head>
+<body>
+
+  <!-- 控制面板 -->
+  <div class="panel">
+    <div class="form-group"><label>主标题</label><input id="title" value="7天文画双修创作挑战"></div>
+    <div class="row">
+      <div class="form-group" style="flex:1"><label>副标题</label><input id="subtitle" value="探索作者性与大众性的平衡"></div>
+      <div class="form-group" style="flex:1"><label>落款</label><input id="author" value="制表 / @九隐"></div>
+    </div>
+    <div class="row">
+      <div class="form-group" style="flex:1"><label>列数</label>
+        <select id="cols"><option value="1">1列</option><option value="2" selected>2列</option><option value="3">3列</option></select>
       </div>
-
-      <!-- Tab Navigation for Customization Modes -->
-      <div class="flex border-b border-slate-200 gap-4 text-xs font-semibold">
-        <button id="tab-btn-content" onclick="switchTab('content')" class="pb-2 border-b-2 border-indigo-600 text-indigo-600">基础内容</button>
-        <button id="tab-btn-bg" onclick="switchTab('bg')" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800">🖼️ 背景图设置</button>
-        <button id="tab-btn-css" onclick="switchTab('css')" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800">🎨 自定义 CSS</button>
+      <div class="form-group" style="flex:1"><label>主题</label>
+        <select id="theme"><option value="warm">暖沙</option><option value="dark">暗黑</option><option value="paper">宣纸</option><option value="mint">冷调</option></select>
       </div>
+    </div>
 
-      <!-- Tab 1: Content Controls -->
-      <div id="tab-panel-content" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">主标题</label>
-          <input id="cfg-title" type="text" value="7天文画双修创作挑战" 
-            class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800">
-        </div>
+    <div class="form-group">
+      <label>每日题目</label>
+      <div id="days-box"></div>
+      <button class="btn btn-sub" onclick="addDay()">➕ 新增一天</button>
+    </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">副标题</label>
-            <input id="cfg-subtitle" type="text" value="探索作者性与大众性的平衡" 
-              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">制表落款</label>
-            <input id="cfg-author" type="text" value="制表 / @九隐" 
-              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800">
-          </div>
-        </div>
+    <div class="form-group">
+      <label>自定义 CSS (可选)</label>
+      <textarea id="css-in" rows="3" placeholder="#card { ... } .card-item { ... }"></textarea>
+    </div>
 
-        <!-- Layout & Days Controls -->
-        <div class="grid grid-cols-3 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">挑战天数</label>
-            <input id="cfg-days-count" type="number" min="1" max="30" value="7" 
-              class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800">
-          </div>
+    <button class="btn btn-primary" onclick="exportPNG()">导出高清 PNG</button>
+  </div>
 
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">每行列数</label>
-            <select id="cfg-cols" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800 bg-white">
-              <option value="1">1 列</option>
-              <option value="2" selected>2 列</option>
-              <option value="3">3 列</option>
-              <option value="4">4 列</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">基础主题</label>
-            <select id="cfg-theme" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800 bg-white">
-              <option value="warm" selected>暖沙复古</option>
-              <option value="dark">暗黑哥特</option>
-              <option value="paper">极简宣纸</option>
-              <option value="mint">冷调清霜</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Quick Preset Prompt Selector -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">预设模板一键加载</label>
-          <div class="flex flex-wrap gap-2">
-            <button onclick="loadPreset('combo7')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded-md transition font-medium">7天文画双修</button>
-            <button onclick="loadPreset('be7')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded-md transition font-medium">7天意象BE</button>
-            <button onclick="loadPreset('oc30')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded-md transition font-medium">12天OC精选</button>
-          </div>
-        </div>
-
-        <!-- Dynamic Days List Section (Replaced Textarea) -->
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider">每日题目列表</label>
-            <span class="text-[10px] text-slate-400">只需填写题目，Day 编号全自动</span>
-          </div>
-          
-          <div id="days-input-container" class="space-y-2 max-h-[320px] overflow-y-auto pr-1 border border-slate-100 p-2 rounded-lg bg-slate-50/50">
-            <!-- Dynamic Day Inputs will be injected here -->
-          </div>
-
-          <button onclick="addDayRow()" class="mt-2.5 w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-xs rounded-lg border border-indigo-200 font-semibold transition flex items-center justify-center gap-1">
-            <span>➕</span> 新增一天 (Add Day)
-          </button>
-        </div>
+  <!-- 卡片预览区 -->
+  <div>
+    <div id="card" class="theme-warm">
+      <div class="card-head">
+        <div id="v-title" class="card-title"></div>
+        <div id="v-sub" class="card-sub"></div>
       </div>
-
-      <!-- Tab 2: Custom Background Image Settings -->
-      <div id="tab-panel-bg" class="space-y-4 hidden">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">上传卡片背景图</label>
-          <input type="file" id="cfg-bg-file" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
-          <p class="text-[11px] text-slate-400 mt-1">上传后背景图将自动铺满挑战卡片</p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">背景平铺模式</label>
-            <select id="cfg-bg-size" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800 bg-white">
-              <option value="cover" selected>完全覆盖 (Cover)</option>
-              <option value="contain">等比缩放 (Contain)</option>
-              <option value="100% 100%">拉伸填充 (100%)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">背景透明/遮罩度</label>
-            <input id="cfg-bg-opacity" type="range" min="0" max="1" step="0.05" value="0.2" class="w-full accent-indigo-600">
-            <span id="cfg-bg-opacity-label" class="text-[10px] text-slate-400 block text-right">遮罩层浓度: 0.2</span>
-          </div>
-        </div>
-
-        <div class="pt-2">
-          <button onclick="clearBgImage()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs rounded-md transition font-medium border border-rose-200">清除背景图</button>
-        </div>
+      <div id="v-grid" class="card-grid"></div>
+      <div class="card-foot">
+        <span>CHALLENGE ACCEPTED</span>
+        <span id="v-author"></span>
       </div>
-
-      <!-- Tab 3: Custom CSS Editor & Preset Save Manager -->
-      <div id="tab-panel-css" class="space-y-4 hidden">
-        
-        <!-- Saved Presets Selector & Actions -->
-        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider">我的配色 CSS 预设库</label>
-          
-          <div class="flex gap-2">
-            <select id="css-preset-select" class="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-800 bg-white outline-none focus:border-indigo-500">
-              <option value="">-- 选择已保存的预设 --</option>
-            </select>
-            <button onclick="applySelectedCssPreset()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-xs rounded-lg font-medium transition border border-indigo-200">加载</button>
-            <button onclick="deleteCssPreset()" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs rounded-lg font-medium transition border border-rose-200" title="删除当前选择的预设">✕</button>
-          </div>
-
-          <div class="pt-2 border-t border-slate-200/80 flex gap-2">
-            <input id="css-preset-name-input" type="text" placeholder="输入预设名称 (同名可覆盖)" class="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-800 outline-none focus:border-indigo-500">
-            <button onclick="saveCurrentCssPreset()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs rounded-lg font-medium shadow-sm transition">保存 / 覆盖</button>
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between pt-1">
-          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider">编写自制 CSS 样式</label>
-          <button onclick="insertSampleCSS()" class="text-[11px] text-indigo-600 hover:underline">插入示例CSS</button>
-        </div>
-        
-        <textarea id="cfg-user-css" rows="8" placeholder="/* 渐变艺术框与圆角效果 */&#10;#render-card-node {&#10;  background: linear-gradient(135deg, #F9CDAD 0%, #FC9D9A 100%) !important;&#10;  color: #2D3748 !important;&#10;}&#10;&#10;.card-item {&#10;  background: rgba(255, 255, 255, 0.45) !important;&#10;  border-color: #83AF9B !important;&#10;  backdrop-filter: blur(4px);&#10;  border-radius: 12px !important;&#10;}&#10;&#10;#card-title-node {&#10;  color: #FE4365 !important;&#10;}"
-          class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-xs font-mono text-slate-800 resize-y leading-relaxed"></textarea>
-        <p class="text-[11px] text-slate-400">选择器参考：<code class="bg-slate-100 px-1 py-0.5 rounded">#render-card-node</code> (卡片外框), <code class="bg-slate-100 px-1 py-0.5 rounded">.card-item</code> (每日题目格子), <code class="bg-slate-100 px-1 py-0.5 rounded">#card-title-node</code> (主标题)。</p>
-      </div>
-
-      <div class="pt-2">
-        <button onclick="exportCardImage()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium text-sm shadow-sm transition flex items-center justify-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-          生成并导出高精 PNG 图片
-        </button>
-      </div>
-    </section>
-
-    <!-- Right Column: Card Preview Canvas Box -->
-    <section class="lg:col-span-7 flex flex-col items-center justify-start w-full">
-      
-      <div class="w-full flex items-center justify-between mb-3 text-xs text-slate-500 px-1">
-        <span>👁️ 实时渲染预览 (导出为高清 2.5x 采样率)</span>
-        <span id="card-resolution-indicator">标准渲染宽度: 520px</span>
-      </div>
-
-      <!-- Preview Card Wrapper -->
-      <div class="p-4 bg-slate-200/60 rounded-2xl border border-slate-300/50 w-full flex justify-center overflow-x-auto">
-        
-        <!-- Target Export Element -->
-        <div id="render-card-node" class="w-[520px] transition-all duration-300 p-8 flex flex-col justify-between gap-6 shadow-2xl rounded-xl relative overflow-hidden theme-warm">
-          
-          <!-- Optional Background Image Element with Overlay -->
-          <div id="card-bg-layer" class="absolute inset-0 bg-center bg-no-repeat pointer-events-none z-0" style="display: none;"></div>
-          <div id="card-overlay-layer" class="absolute inset-0 pointer-events-none z-0" style="background-color: var(--card-bg); opacity: 0.2; display: none;"></div>
-
-          <!-- Card Inner Content Layer -->
-          <div class="relative z-10 flex flex-col justify-between h-full gap-6">
-            
-            <!-- Card Header Section -->
-            <header class="text-center space-y-2">
-              <h2 id="card-title-node" class="text-2xl font-bold font-serif-custom tracking-wide">7天文画双修创作挑战</h2>
-              <div id="card-subtitle-node" class="text-xs tracking-wider opacity-80 uppercase" style="color: var(--text-sub);">探索作者性与大众性的平衡</div>
-            </header>
-
-            <!-- Dynamic Grid Layout -->
-            <div id="card-grid-node" class="grid gap-3 my-2">
-              <!-- Grid Items Injected By JS -->
-            </div>
-
-            <!-- Card Footer Watermark Section -->
-            <footer class="pt-3 border-t flex justify-between items-center text-[11px]" style="border-color: var(--border-color); color: var(--text-sub);">
-              <span class="tracking-widest uppercase">CHALLENGE ACCEPTED</span>
-              <span id="card-author-node">制表 / @九隐</span>
-            </footer>
-
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <footer class="w-full py-4 text-center text-xs text-slate-400 border-t border-slate-200/80 bg-white/50">
-    Vibe Challenge Card Studio &copy; 本地即时渲染导出 · 无网络依赖
-  </footer>
+    </div>
+  </div>
 
   <script>
-    // Presets
-    const presets = {
-      combo7: {
-        title: "7天文画双修创作挑战",
-        subtitle: "探索作者性与大众性的平衡",
-        author: "制表 / @九隐",
-        daysCount: 7,
-        cols: "2",
-        items: [
-          "经典世界观 Paro（身份与气场）",
-          "命运岔路 If 线（选择与代价）",
-          "核心意象与氛围（自然与情绪）",
-          "局部镜头特写（细节与留白）",
-          "无声的张力对戏（潜台词与暗流）",
-          "异色与反差侧面（隐藏的悖论）",
-          "完全自由的摸鱼（本能与风格）"
-        ]
-      },
-      be7: {
-        title: "7天同人BE意象挑战",
-        subtitle: "情绪递进与氛围沉浸练习",
-        author: "制表 / @同人创作组",
-        daysCount: 7,
-        cols: "2",
-        items: [
-          "悬日（悬日是落日却悬在眼前）",
-          "蝉噪（夏日蝉鸣喧嚣之下藏着不安）",
-          "礁石（海浪之下坚硬的礁石终将显露）",
-          "雨夜（雨水能冲刷痕迹也能放大孤独）",
-          "裂隙（裂痕已经无法弥补如同鸿沟）",
-          "倒计时（结局近在眼前钟摆敲响）",
-          "余烬（大火烧尽只剩冰冷的灰烬）"
-        ]
-      },
-      oc30: {
-        title: "12天OC核心质感挑战",
-        subtitle: "角色多维塑造与视角拓展",
-        author: "制表 / @OC同好会",
-        daysCount: 12,
-        cols: "3",
-        items: [
-          "幼年时期的模样",
-          "迟暮之年的模样",
-          "背面与侧面全貌",
-          "身上最特别的特写",
-          "另一条选择线上的Ta",
-          "不为人知的另一面",
-          "经典学院/校服Paro",
-          "乐队宇宙中的担当",
-          "穿上华丽礼服特写",
-          "运动/锻炼身体状态",
-          "极其阳光的一句台词",
-          "用全新风格创作一次"
-        ]
-      }
-    };
+    let list = [
+      "经典世界观 Paro（身份与气场）", "命运岔路 If 线（选择与代价）",
+      "核心意象与氛围（自然与情绪）", "局部镜头特写（细节与留白）",
+      "无声的张力对戏（潜台词与暗流）", "异色与反差侧面（隐藏的悖论）",
+      "完全自由的摸鱼（本能与风格）"
+    ];
 
-    // State Variables
-    let customBgImageDataUrl = "";
-    let dayList = [...presets.combo7.items]; // Array of string titles
-    const LOCAL_STORAGE_KEY = 'vibe_card_css_presets';
+    const $ = id => document.getElementById(id);
 
-    // DOM Elements
-    const elTitle = document.getElementById('cfg-title');
-    const elSubtitle = document.getElementById('cfg-subtitle');
-    const elAuthor = document.getElementById('cfg-author');
-    const elDaysCount = document.getElementById('cfg-days-count');
-    const elCols = document.getElementById('cfg-cols');
-    const elTheme = document.getElementById('cfg-theme');
-    const daysContainer = document.getElementById('days-input-container');
-    
-    const elBgFile = document.getElementById('cfg-bg-file');
-    const elBgSize = document.getElementById('cfg-bg-size');
-    const elBgOpacity = document.getElementById('cfg-bg-opacity');
-    const elBgOpacityLabel = document.getElementById('cfg-bg-opacity-label');
-    const elUserCss = document.getElementById('cfg-user-css');
-    const userCssTag = document.getElementById('user-custom-styles');
-
-    const cssPresetSelect = document.getElementById('css-preset-select');
-    const cssPresetNameInput = document.getElementById('css-preset-name-input');
-
-    const cardNode = document.getElementById('render-card-node');
-    const cardTitle = document.getElementById('card-title-node');
-    const cardSubtitle = document.getElementById('card-subtitle-node');
-    const cardAuthor = document.getElementById('card-author-node');
-    const cardGrid = document.getElementById('card-grid-node');
-    const cardBgLayer = document.getElementById('card-bg-layer');
-    const cardOverlayLayer = document.getElementById('card-overlay-layer');
-
-    // Render Input List Control
-    function renderDaysInputList() {
-      daysContainer.innerHTML = '';
-      dayList.forEach((text, index) => {
-        const row = document.createElement('div');
-        row.className = 'flex items-center gap-2 group';
-        row.innerHTML = `
-          <span class="text-xs font-bold text-slate-500 font-mono w-12 shrink-0 text-right">Day ${index + 1}</span>
-          <input type="text" data-index="${index}" value="${text.replace(/"/g, '&quot;')}" placeholder="请输入题目内容..." 
-            class="day-input-item flex-1 px-3 py-1.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-200 outline-none text-xs text-slate-700 transition">
-          <button onclick="removeDayRow(${index})" class="text-slate-300 hover:text-rose-500 p-1 text-xs transition" title="删除此天">
-            ✕
-          </button>
-        `;
-        daysContainer.appendChild(row);
-      });
-
-      // Bind input events to items
-      document.querySelectorAll('.day-input-item').forEach(input => {
-        input.addEventListener('input', (e) => {
-          const idx = parseInt(e.target.getAttribute('data-index'));
-          dayList[idx] = e.target.value;
-          syncCardState();
-        });
-      });
-
-      // Update days count input without triggering event infinite loop
-      elDaysCount.value = dayList.length;
+    function renderInputs() {
+      $('days-box').innerHTML = list.map((text, i) => `
+        <div class="day-item">
+          <span class="day-tag">Day ${i+1}</span>
+          <input value="${text.replace(/"/g, '&quot;')}" oninput="list[${i}]=this.value;updateCard()">
+          <button class="del-btn" onclick="delDay(${i})">✕</button>
+        </div>
+      `).join('');
     }
 
-    function addDayRow() {
-      dayList.push(`自定义 Day ${dayList.length + 1} 题目`);
-      renderDaysInputList();
-      syncCardState();
-      // Auto scroll to bottom
-      daysContainer.scrollTop = daysContainer.scrollHeight;
+    function addDay() {
+      list.push(`Day ${list.length + 1} 题目`);
+      renderInputs();
+      updateCard();
     }
 
-    function removeDayRow(index) {
-      if (dayList.length <= 1) {
-        alert("至少保留一天的数据！");
-        return;
-      }
-      dayList.splice(index, 1);
-      renderDaysInputList();
-      syncCardState();
+    function delDay(i) {
+      if (list.length <= 1) return;
+      list.splice(i, 1);
+      renderInputs();
+      updateCard();
     }
 
-    // Dynamic reaction when user directly edits the Day Count Number Box
-    elDaysCount.addEventListener('change', function() {
-      let target = parseInt(this.value) || 1;
-      if (target < 1) target = 1;
-      if (target > 30) target = 30;
-      this.value = target;
+    function updateCard() {
+      $('v-title').innerText =$('title').value || '创作挑战';
+      $('v-sub').innerText =$('subtitle').value;
+      $('v-author').innerText =$('author').value;
+      $('custom-css').innerHTML =$('css-in').value;
 
-      if (target > dayList.length) {
-        const diff = target - dayList.length;
-        for (let i = 0; i < diff; i++) {
-          dayList.push(`待定制 Day ${dayList.length + 1} 题目`);
-        }
-      } else if (target < dayList.length) {
-        dayList = dayList.slice(0, target);
-      }
-      renderDaysInputList();
-      syncCardState();
-    });
-
-    // --- CSS Preset Storage Management ---
-    function getStoredCssPresets() {
-      try {
-        const data = localStorage.getItem(LOCAL_STORAGE_KEY);
-        return data ? JSON.parse(data) : {};
-      } catch (e) {
-        return {};
-      }
+      $('card').className = `theme-${$('theme').value}`;
+      
+      const cols = parseInt($('cols').value);$('v-grid').style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      
+      $('v-grid').innerHTML = list.map((item, i) => `
+        <div class="card-item">
+          <div class="card-item-tag">DAY ${i+1}</div>
+          <div>${item || '待输入'}</div>
+        </div>
+      `).join('');
     }
 
-    function refreshCssPresetDropdown() {
-      const presets = getStoredCssPresets();
-      cssPresetSelect.innerHTML = '<option value="">-- 选择已保存的预设 --</option>';
-      Object.keys(presets).forEach(name => {
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        cssPresetSelect.appendChild(option);
+    function exportPNG() {
+      html2canvas($('card'), { scale: 2.5 }).then(canvas => {
+        const a = document.createElement('a');
+        a.download = `${$('title').value}.png`;
+        a.href = canvas.toDataURL();
+        a.click();
       });
     }
 
-    function saveCurrentCssPreset() {
-      const name = cssPresetNameInput.value.trim();
-      const cssContent = elUserCss.value.trim();
+    ['title','subtitle','author','cols','theme','css-in'].forEach(id => $(id).oninput = updateCard);
 
-      if (!name) {
-        alert("请输入预设名称！");
-        return;
-      }
-      if (!cssContent) {
-        alert("当前的 CSS 代码为空，无法保存！");
-        return;
-      }
-
-      const presets = getStoredCssPresets();
-      const isOverride = !!presets[name];
-
-      presets[name] = {
-        css: cssContent,
-        baseTheme: elTheme.value,
-        updatedAt: new Date().toISOString()
-      };
-
-      try {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(presets));
-        refreshCssPresetDropdown();
-        cssPresetSelect.value = name;
-        alert(isOverride ? `成功覆盖原有预设：「${name}」！` : `成功保存新预设：「${name}」！`);
-      } catch (e) {
-        alert("保存失败，本地存储可能已被禁用或满额。");
-      }
-    }
-
-    function applySelectedCssPreset() {
-      const selectedName = cssPresetSelect.value;
-      if (!selectedName) return;
-
-      const presets = getStoredCssPresets();
-      const preset = presets[selectedName];
-
-      if (preset) {
-        elUserCss.value = preset.css;
-        if (preset.baseTheme) {
-          elTheme.value = preset.baseTheme;
-        }
-        cssPresetNameInput.value = selectedName;
-        syncCardState();
-      }
-    }
-
-    function deleteCssPreset() {
-      const selectedName = cssPresetSelect.value;
-      if (!selectedName) {
-        alert("请先选择要删除的预设！");
-        return;
-      }
-
-      if (confirm(`确定要删除预设配色「${selectedName}」吗？`)) {
-        const presets = getStoredCssPresets();
-        delete presets[selectedName];
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(presets));
-        refreshCssPresetDropdown();
-        cssPresetNameInput.value = "";
-      }
-    }
-
-    cssPresetSelect.addEventListener('change', function() {
-      if (this.value) {
-        cssPresetNameInput.value = this.value;
-      }
-    });
-
-    // Tab Switcher
-    function switchTab(tabName) {
-      const tabs = ['content', 'bg', 'css'];
-      tabs.forEach(t => {
-        const btn = document.getElementById(`tab-btn-${t}`);
-        const panel = document.getElementById(`tab-panel-${t}`);
-        if (t === tabName) {
-          btn.className = "pb-2 border-b-2 border-indigo-600 text-indigo-600 font-semibold";
-          panel.classList.remove('hidden');
-        } else {
-          btn.className = "pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-semibold";
-          panel.classList.add('hidden');
-        }
-      });
-    }
-
-    // Main Card Sync Logic
-    function syncCardState() {
-      // 1. Sync Text Header/Author
-      cardTitle.innerText = elTitle.value.trim() || "创作挑战";
-      cardSubtitle.innerText = elSubtitle.value.trim() || "CHALLENGE CARD";
-      cardAuthor.innerText = elAuthor.value.trim() || "";
-
-      // 2. Sync Theme Class
-      const selectedTheme = elTheme.value;
-      cardNode.className = `w-[520px] transition-all duration-300 p-8 flex flex-col justify-between gap-6 shadow-2xl rounded-xl relative overflow-hidden theme-${selectedTheme}`;
-
-      // 3. Sync Background Image & Layer
-      if (customBgImageDataUrl) {
-        cardBgLayer.style.backgroundImage = `url("${customBgImageDataUrl}")`;
-        cardBgLayer.style.backgroundSize = elBgSize.value;
-        cardBgLayer.style.display = 'block';
-
-        cardOverlayLayer.style.opacity = elBgOpacity.value;
-        cardOverlayLayer.style.display = 'block';
-        elBgOpacityLabel.innerText = `遮罩层浓度: ${elBgOpacity.value}`;
-      } else {
-        cardBgLayer.style.display = 'none';
-        cardOverlayLayer.style.display = 'none';
-      }
-
-      // 4. Inject User Custom CSS
-      userCssTag.innerHTML = elUserCss.value;
-
-      // 5. Render Card Grid Items
-      renderGrid();
-    }
-
-    function renderGrid() {
-      const targetCount = dayList.length;
-      const cols = parseInt(elCols.value) || 2;
-
-      cardGrid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
-      cardGrid.innerHTML = '';
-
-      for (let i = 0; i < targetCount; i++) {
-        const dayLabel = `DAY ${i + 1}`;
-        const dayDetail = dayList[i] || "待定制题目";
-
-        const itemNode = document.createElement('div');
-        itemNode.className = "card-item p-3 rounded-lg border transition-all flex flex-col justify-between gap-1 text-xs";
-        itemNode.style.backgroundColor = "var(--item-bg)";
-        itemNode.style.borderColor = "var(--border-color)";
-
-        // Last item full row span calculation if uneven
-        if (i === targetCount - 1 && targetCount % cols !== 0) {
-          const remainder = targetCount % cols;
-          const spanWidth = cols - remainder + 1;
-          itemNode.style.gridColumn = `span ${spanWidth} / span ${spanWidth}`;
-        }
-
-        itemNode.innerHTML = `
-          <div class="card-item-title font-bold tracking-wider uppercase text-[10px] pb-1 border-b" style="color: var(--text-sub); border-color: var(--border-color);">
-            ${dayLabel}
-          </div>
-          <div class="card-item-content mt-1 font-medium leading-relaxed" style="color: var(--text-main);">
-            ${dayDetail}
-          </div>
-        `;
-
-        cardGrid.appendChild(itemNode);
-      }
-    }
-
-    // Handle Image Upload
-    elBgFile.addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          customBgImageDataUrl = evt.target.result;
-          syncCardState();
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    function clearBgImage() {
-      customBgImageDataUrl = "";
-      elBgFile.value = "";
-      syncCardState();
-    }
-
-    function insertSampleCSS() {
-      elUserCss.value = `/* 渐变艺术框与圆角效果 */\n#render-card-node {\n  background: linear-gradient(135deg, #F9CDAD 0%, #FC9D9A 100%) !important;\n  color: #2D3748 !important;\n}\n\n.card-item {\n  background: rgba(255, 255, 255, 0.45) !important;\n  border-color: #83AF9B !important;\n  backdrop-filter: blur(4px);\n  border-radius: 12px !important;\n}\n\n#card-title-node {\n  color: #FE4365 !important;\n}`;
-      syncCardState();
-    }
-
-    // Load Presets
-    function loadPreset(key) {
-      const p = presets[key];
-      if (!p) return;
-      elTitle.value = p.title;
-      elSubtitle.value = p.subtitle;
-      if (p.author) elAuthor.value = p.author;
-      elCols.value = p.cols;
-      dayList = [...p.items];
-      renderDaysInputList();
-      syncCardState();
-    }
-
-    // High Resolution Image Export
-    function exportCardImage() {
-      html2canvas(cardNode, {
-        scale: 2.5,
-        useCORS: true,
-        backgroundColor: null
-      }).then(canvas => {
-        const link = document.createElement('a');
-        const count = dayList.length;
-        const filename = `${cardTitle.innerText}_${count}天挑战卡片.png`;
-        link.download = filename;
-        link.href = canvas.toDataURL('image/png', 1.0);
-        link.click();
-      }).catch(err => {
-        alert("图片导出失败，请重试: " + err);
-      });
-    }
-
-    // Event Listeners for inputs
-    [elTitle, elSubtitle, elAuthor, elCols, elTheme, elBgSize, elBgOpacity, elUserCss].forEach(element => {
-      element.addEventListener('input', syncCardState);
-      element.addEventListener('change', syncCardState);
-    });
-
-    // Initial Load
-    window.onload = function() {
-      refreshCssPresetDropdown();
-      renderDaysInputList();
-      syncCardState();
-    };
+    renderInputs();
+    updateCard();
   </script>
 </body>
 </html>
