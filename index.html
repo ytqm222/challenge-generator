@@ -180,20 +180,20 @@
           </div>
         </div>
 
-        <!-- Multiline Textarea Input for Daily Prompts -->
+        <!-- Dynamic Days List Section (Replaced Textarea) -->
         <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider">每日题目列表 (每行一天)</label>
-            <span class="text-[10px] text-slate-400">支持 "Day1: 题目" 格式</span>
+          <div class="flex items-center justify-between mb-2">
+            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider">每日题目列表</label>
+            <span class="text-[10px] text-slate-400">只需填写题目，Day 编号全自动</span>
           </div>
-          <textarea id="cfg-days-text" rows="6" 
-            class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-xs leading-relaxed font-mono text-slate-700 resize-y">Day 1: 经典世界观 Paro（身份与气场）
-Day 2: 命运岔路 If 线（选择与代价）
-Day 3: 核心意象与氛围（自然与情绪）
-Day 4: 局部镜头特写（细节与留白）
-Day 5: 无声的张力对戏（潜台词与暗流）
-Day 6: 异色与反差侧面（隐藏的悖论）
-Day 7: 完全自由的摸鱼（本能与风格）</textarea>
+          
+          <div id="days-input-container" class="space-y-2 max-h-[320px] overflow-y-auto pr-1 border border-slate-100 p-2 rounded-lg bg-slate-50/50">
+            <!-- Dynamic Day Inputs will be injected here -->
+          </div>
+
+          <button onclick="addDayRow()" class="mt-2.5 w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-xs rounded-lg border border-indigo-200 font-semibold transition flex items-center justify-center gap-1">
+            <span>➕</span> 新增一天 (Add Day)
+          </button>
         </div>
       </div>
 
@@ -324,7 +324,15 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
         author: "制表 / @九隐",
         daysCount: 7,
         cols: "2",
-        text: `Day 1: 经典世界观 Paro（身份与气场）\nDay 2: 命运岔路 If 线（选择与代价）\nDay 3: 核心意象与氛围（自然与情绪）\nDay 4: 局部镜头特写（细节与留白）\nDay 5: 无声的张力对戏（潜台词与暗流）\nDay 6: 异色与反差侧面（隐藏的悖论）\nDay 7: 完全自由的摸鱼（本能与风格）`
+        items: [
+          "经典世界观 Paro（身份与气场）",
+          "命运岔路 If 线（选择与代价）",
+          "核心意象与氛围（自然与情绪）",
+          "局部镜头特写（细节与留白）",
+          "无声的张力对戏（潜台词与暗流）",
+          "异色与反差侧面（隐藏的悖论）",
+          "完全自由的摸鱼（本能与风格）"
+        ]
       },
       be7: {
         title: "7天同人BE意象挑战",
@@ -332,7 +340,15 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
         author: "制表 / @同人创作组",
         daysCount: 7,
         cols: "2",
-        text: `Day 1: 悬日（悬日是落日却悬在眼前）\nDay 2: 蝉噪（夏日蝉鸣喧嚣之下藏着不安）\nDay 3: 礁石（海浪之下坚硬的礁石终将显露）\nDay 4: 雨夜（雨水能冲刷痕迹也能放大孤独）\nDay 5: 裂隙（裂痕已经无法弥补如同鸿沟）\nDay 6: 倒计时（结局近在眼前钟摆敲响）\nDay 7: 余烬（大火烧尽只剩冰冷的灰烬）`
+        items: [
+          "悬日（悬日是落日却悬在眼前）",
+          "蝉噪（夏日蝉鸣喧嚣之下藏着不安）",
+          "礁石（海浪之下坚硬的礁石终将显露）",
+          "雨夜（雨水能冲刷痕迹也能放大孤独）",
+          "裂隙（裂痕已经无法弥补如同鸿沟）",
+          "倒计时（结局近在眼前钟摆敲响）",
+          "余烬（大火烧尽只剩冰冷的灰烬）"
+        ]
       },
       oc30: {
         title: "12天OC核心质感挑战",
@@ -340,12 +356,26 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
         author: "制表 / @OC同好会",
         daysCount: 12,
         cols: "3",
-        text: `Day 1: 幼年时期的模样\nDay 2: 迟暮之年的模样\nDay 3: 背面与侧面全貌\nDay 4: 身上最特别的特写\nDay 5: 另一条选择线上的Ta\nDay 6: 不为人知的另一面\nDay 7: 经典学院/校服Paro\nDay 8: 乐队宇宙中的担当\nDay 9: 穿上华丽礼服特写\nDay 10: 运动/锻炼身体状态\nDay 11: 极其阳光的一句台词\nDay 12: 用全新风格创作一次`
+        items: [
+          "幼年时期的模样",
+          "迟暮之年的模样",
+          "背面与侧面全貌",
+          "身上最特别的特写",
+          "另一条选择线上的Ta",
+          "不为人知的另一面",
+          "经典学院/校服Paro",
+          "乐队宇宙中的担当",
+          "穿上华丽礼服特写",
+          "运动/锻炼身体状态",
+          "极其阳光的一句台词",
+          "用全新风格创作一次"
+        ]
       }
     };
 
     // State Variables
     let customBgImageDataUrl = "";
+    let dayList = [...presets.combo7.items]; // Array of string titles
     const LOCAL_STORAGE_KEY = 'vibe_card_css_presets';
 
     // DOM Elements
@@ -355,7 +385,7 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
     const elDaysCount = document.getElementById('cfg-days-count');
     const elCols = document.getElementById('cfg-cols');
     const elTheme = document.getElementById('cfg-theme');
-    const elDaysText = document.getElementById('cfg-days-text');
+    const daysContainer = document.getElementById('days-input-container');
     
     const elBgFile = document.getElementById('cfg-bg-file');
     const elBgSize = document.getElementById('cfg-bg-size');
@@ -374,6 +404,73 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
     const cardGrid = document.getElementById('card-grid-node');
     const cardBgLayer = document.getElementById('card-bg-layer');
     const cardOverlayLayer = document.getElementById('card-overlay-layer');
+
+    // Render Input List Control
+    function renderDaysInputList() {
+      daysContainer.innerHTML = '';
+      dayList.forEach((text, index) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2 group';
+        row.innerHTML = `
+          <span class="text-xs font-bold text-slate-500 font-mono w-12 shrink-0 text-right">Day ${index + 1}</span>
+          <input type="text" data-index="${index}" value="${text.replace(/"/g, '&quot;')}" placeholder="请输入题目内容..." 
+            class="day-input-item flex-1 px-3 py-1.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-200 outline-none text-xs text-slate-700 transition">
+          <button onclick="removeDayRow(${index})" class="text-slate-300 hover:text-rose-500 p-1 text-xs transition" title="删除此天">
+            ✕
+          </button>
+        `;
+        daysContainer.appendChild(row);
+      });
+
+      // Bind input events to items
+      document.querySelectorAll('.day-input-item').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const idx = parseInt(e.target.getAttribute('data-index'));
+          dayList[idx] = e.target.value;
+          syncCardState();
+        });
+      });
+
+      // Update days count input without triggering event infinite loop
+      elDaysCount.value = dayList.length;
+    }
+
+    function addDayRow() {
+      dayList.push(`自定义 Day ${dayList.length + 1} 题目`);
+      renderDaysInputList();
+      syncCardState();
+      // Auto scroll to bottom
+      daysContainer.scrollTop = daysContainer.scrollHeight;
+    }
+
+    function removeDayRow(index) {
+      if (dayList.length <= 1) {
+        alert("至少保留一天的数据！");
+        return;
+      }
+      dayList.splice(index, 1);
+      renderDaysInputList();
+      syncCardState();
+    }
+
+    // Dynamic reaction when user directly edits the Day Count Number Box
+    elDaysCount.addEventListener('change', function() {
+      let target = parseInt(this.value) || 1;
+      if (target < 1) target = 1;
+      if (target > 30) target = 30;
+      this.value = target;
+
+      if (target > dayList.length) {
+        const diff = target - dayList.length;
+        for (let i = 0; i < diff; i++) {
+          dayList.push(`待定制 Day ${dayList.length + 1} 题目`);
+        }
+      } else if (target < dayList.length) {
+        dayList = dayList.slice(0, target);
+      }
+      renderDaysInputList();
+      syncCardState();
+    });
 
     // --- CSS Preset Storage Management ---
     function getStoredCssPresets() {
@@ -461,7 +558,6 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
       }
     }
 
-    // Dropdown change auto populate name input
     cssPresetSelect.addEventListener('change', function() {
       if (this.value) {
         cssPresetNameInput.value = this.value;
@@ -517,24 +613,15 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
     }
 
     function renderGrid() {
-      const targetCount = parseInt(elDaysCount.value) || 7;
+      const targetCount = dayList.length;
       const cols = parseInt(elCols.value) || 2;
-      const rawLines = elDaysText.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
       cardGrid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
       cardGrid.innerHTML = '';
 
       for (let i = 0; i < targetCount; i++) {
-        const rawLine = rawLines[i] || `Day ${i + 1}: 待定制题目`;
-        
-        let dayLabel = `DAY ${i + 1}`;
-        let dayDetail = rawLine;
-
-        if (rawLine.includes(':') || rawLine.includes('：')) {
-          const splitArr = rawLine.split(/[:：]/);
-          dayLabel = splitArr[0].trim();
-          dayDetail = splitArr.slice(1).join('：').trim();
-        }
+        const dayLabel = `DAY ${i + 1}`;
+        const dayDetail = dayList[i] || "待定制题目";
 
         const itemNode = document.createElement('div');
         itemNode.className = "card-item p-3 rounded-lg border transition-all flex flex-col justify-between gap-1 text-xs";
@@ -592,9 +679,9 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
       elTitle.value = p.title;
       elSubtitle.value = p.subtitle;
       if (p.author) elAuthor.value = p.author;
-      elDaysCount.value = p.daysCount;
       elCols.value = p.cols;
-      elDaysText.value = p.text;
+      dayList = [...p.items];
+      renderDaysInputList();
       syncCardState();
     }
 
@@ -606,7 +693,7 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
         backgroundColor: null
       }).then(canvas => {
         const link = document.createElement('a');
-        const count = elDaysCount.value;
+        const count = dayList.length;
         const filename = `${cardTitle.innerText}_${count}天挑战卡片.png`;
         link.download = filename;
         link.href = canvas.toDataURL('image/png', 1.0);
@@ -617,7 +704,7 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
     }
 
     // Event Listeners for inputs
-    [elTitle, elSubtitle, elAuthor, elDaysCount, elCols, elTheme, elDaysText, elBgSize, elBgOpacity, elUserCss].forEach(element => {
+    [elTitle, elSubtitle, elAuthor, elCols, elTheme, elBgSize, elBgOpacity, elUserCss].forEach(element => {
       element.addEventListener('input', syncCardState);
       element.addEventListener('change', syncCardState);
     });
@@ -625,6 +712,7 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
     // Initial Load
     window.onload = function() {
       refreshCssPresetDropdown();
+      renderDaysInputList();
       syncCardState();
     };
   </script>
