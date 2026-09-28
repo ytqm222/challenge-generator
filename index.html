@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -61,8 +61,8 @@
       background-color: var(--item-bg);
       border: 1px solid var(--border-color);
     }
-  </style>
-      /* 可复制 CSS 代码块 */
+
+    /* 可复制 CSS 代码块 */
     .code-block-container {
       margin-top: 1rem;
       overflow: hidden;
@@ -146,6 +146,8 @@
     .code-block-body::-webkit-scrollbar-track {
       background: #1e1e2e;
     }
+  </style>
+
 </head>
 <body class="bg-slate-100 min-h-screen p-4 md:p-8 font-sans">
 
@@ -196,7 +198,7 @@
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">每行列数</label>
-          <select id="cfg-cols" onchange="renderCard()" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800 bg-white">
+          <select id="cfg-cols" onchange="renderCard()" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800">
             <option value="1">1 列</option>
             <option value="2" selected>2 列</option>
             <option value="3">3 列</option>
@@ -206,7 +208,7 @@
 
         <div>
           <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">预设配色</label>
-          <select id="cfg-theme" onchange="renderCard()" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800 bg-white">
+          <select id="cfg-theme" onchange="renderCard()" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-sm text-slate-800">
             <option value="warm" selected>暖沙复古</option>
             <option value="dark">暗黑哥特</option>
             <option value="paper">极简宣纸</option>
@@ -218,7 +220,7 @@
       <div>
         <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">每日题目列表 (每行一天)</label>
         <textarea id="cfg-days-text" rows="7" oninput="renderCard()"
-          class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-xs leading-relaxed font-mono text-slate-700 resize-y">Day 1: 经典世界观 Paro（身份与气场）
+          class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-xs leading-relaxed font-mono text-slate-700">
 Day 2: 命运岔路 If 线（选择与代价）
 Day 3: 核心意象与氛围（自然与情绪）
 Day 4: 局部镜头特写（细节与留白）
@@ -328,7 +330,7 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
     <div id="tab-panel-bg" class="space-y-4 hidden">
       <div>
         <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">上传卡片背景图</label>
-        <input type="file" id="cfg-bg-file" accept="image/*" onchange="handleBgUpload(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+        <input type="file" id="cfg-bg-file" accept="image/*" onchange="handleBgUpload(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0">
       </div>
 
       <div class="grid grid-cols-2 gap-3">
@@ -378,7 +380,7 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
             </button>
           </div>
         </div>
-              </details>
+      </details>
 
       <!-- CSS 示例代码块 -->
       <div class="code-block-container">
@@ -407,10 +409,6 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
   color: #FE4365 !important;
 }</code></pre>
       </div>
-    </div>
-      </details>
-      </Step>
-
     </div>
 
     <!-- 导出按钮 -->
@@ -463,8 +461,6 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
 <style id="dynamic-custom-style"></style>
 
 <script>
-  
-<script>
   // 可复制 CSS 代码块
   function copyCodeSnippet(button) {
     const codeElement = button
@@ -500,6 +496,7 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
     tabs.forEach(t => {
       const btn = document.getElementById(`tab-btn-${t}`);
       const panel = document.getElementById(`tab-panel-${t}`);
+      if (!btn || !panel) return;
       if (t === tab) {
         btn.className = "pb-2 border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap";
         panel.classList.remove('hidden');
@@ -513,70 +510,79 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
   // 主渲染函数
   function renderCard() {
     // 1. 文案填充
-    const titleText = document.getElementById('cfg-title').value || '创作挑战';
+    const titleText = document.getElementById('cfg-title')?.value || '创作挑战';
     const titleNode = document.getElementById('card-title-node');
-    titleNode.innerText = titleText;
-    document.getElementById('card-subtitle-node').innerText = document.getElementById('cfg-subtitle').value || '';
-    document.getElementById('card-author-node').innerText = document.getElementById('cfg-author').value || '';
+    if (titleNode) titleNode.textContent = titleText;
+    const subtitleNode = document.getElementById('card-subtitle-node');
+    if (subtitleNode) subtitleNode.textContent = document.getElementById('cfg-subtitle')?.value || '';
+    const authorNode = document.getElementById('card-author-node');
+    if (authorNode) authorNode.textContent = document.getElementById('cfg-author')?.value || '';
 
     // 2. 主题与列数
     const cardNode = document.getElementById('render-card-node');
-    const theme = document.getElementById('cfg-theme').value;
-    cardNode.className = `w-[520px] transition-all duration-300 p-8 flex flex-col justify-between gap-6 shadow-2xl rounded-xl relative overflow-hidden theme-${theme}`;
+    const theme = document.getElementById('cfg-theme')?.value || 'warm';
+    if (cardNode) cardNode.className = `w-[520px] transition-all duration-300 p-8 flex flex-col justify-between gap-6 shadow-2xl rounded-xl relative overflow-hidden theme-${theme}`;
 
-    const cols = document.getElementById('cfg-cols').value;
+    const cols = document.getElementById('cfg-cols')?.value || 2;
     const gridNode = document.getElementById('card-grid-node');
-    gridNode.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+    if (gridNode) gridNode.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
 
     // 3. 读取并应用标题字体排版参数
-    const titleFont = document.getElementById('font-title-family').value;
-    const titleWeight = document.getElementById('font-title-weight').value;
-    const titleSize = document.getElementById('font-title-size').value;
-    const titleColor = document.getElementById('font-title-color').value;
+    const titleFont = document.getElementById('font-title-family')?.value || 'font-noto-serif';
+    const titleWeight = document.getElementById('font-title-weight')?.value || 'font-bold';
+    const titleSize = document.getElementById('font-title-size')?.value || 24;
+    const titleColor = document.getElementById('font-title-color')?.value || '';
 
-    document.getElementById('title-size-val').innerText = titleSize;
-    titleNode.className = `${titleFont} ${titleWeight} tracking-wide`;
-    titleNode.style.fontSize = `${titleSize}px`;
-    titleNode.style.color = titleColor;
+    const titleSizeVal = document.getElementById('title-size-val');
+    if (titleSizeVal) titleSizeVal.textContent = titleSize;
+    if (titleNode) {
+      titleNode.className = `${titleFont} ${titleWeight} tracking-wide`;
+      titleNode.style.fontSize = `${titleSize}px`;
+      if (titleColor) titleNode.style.color = titleColor;
+    }
 
     // 4. 读取 Days 和 正文排版配置
-    const tagFont = document.getElementById('font-tag-family').value;
-    const tagWeight = document.getElementById('font-tag-weight').value;
-    const tagSize = document.getElementById('font-tag-size').value;
-    const tagColor = document.getElementById('font-tag-color').value;
-    document.getElementById('tag-size-val').innerText = tagSize;
+    const tagFont = document.getElementById('font-tag-family')?.value || 'font-sans-default';
+    const tagWeight = document.getElementById('font-tag-weight')?.value || 'font-bold';
+    const tagSize = document.getElementById('font-tag-size')?.value || 10;
+    const tagColor = document.getElementById('font-tag-color')?.value || '';
+    const tagSizeVal = document.getElementById('tag-size-val');
+    if (tagSizeVal) tagSizeVal.textContent = tagSize;
 
-    const bodyFont = document.getElementById('font-body-family').value;
-    const bodyWeight = document.getElementById('font-body-weight').value;
-    const bodySize = document.getElementById('font-body-size').value;
-    const bodyColor = document.getElementById('font-body-color').value;
-    document.getElementById('body-size-val').innerText = bodySize;
+    const bodyFont = document.getElementById('font-body-family')?.value || 'font-lxgw';
+    const bodyWeight = document.getElementById('font-body-weight')?.value || 'font-medium';
+    const bodySize = document.getElementById('font-body-size')?.value || 12;
+    const bodyColor = document.getElementById('font-body-color')?.value || '';
+    const bodySizeVal = document.getElementById('body-size-val');
+    if (bodySizeVal) bodySizeVal.textContent = bodySize;
 
     // 5. 渲染网格题目
-    const textRaw = document.getElementById('cfg-days-text').value;
+    const textRaw = document.getElementById('cfg-days-text')?.value || '';
     const lines = textRaw.split('\n').filter(line => line.trim() !== '');
     
-    gridNode.innerHTML = '';
-    lines.forEach((line, index) => {
-      let tag = `Day ${index + 1}`;
-      let content = line.trim();
+    if (gridNode) {
+      gridNode.innerHTML = '';
+      lines.forEach((line, index) => {
+        let tag = `Day ${index + 1}`;
+        let content = line.trim();
 
-      if (line.includes(':') || line.includes('：')) {
-        const parts = line.split(/[:：]/);
-        tag = parts[0].trim();
-        content = parts.slice(1).join(':').trim();
-      }
+        if (line.includes(':') || line.includes('：')) {
+          const parts = line.split(/[:：]/);
+          tag = parts[0].trim();
+          content = parts.slice(1).join(':').trim();
+        }
 
-      const itemDiv = document.createElement('div');
-      itemDiv.className = 'card-item-box p-3 rounded-lg flex flex-col gap-1 transition-all';
-      itemDiv.innerHTML = `
-        <div class="${tagFont} ${tagWeight} tracking-wider uppercase border-b pb-1 mb-1" 
-             style="font-size: ${tagSize}px; color: ${tagColor}; border-color: var(--border-color);">${tag}</div>
-        <div class="${bodyFont} ${bodyWeight} leading-snug" 
-             style="font-size: ${bodySize}px; color: ${bodyColor};">${content}</div>
-      `;
-      gridNode.appendChild(itemDiv);
-    });
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'card-item-box p-3 rounded-lg flex flex-col gap-1 transition-all';
+        itemDiv.innerHTML = `
+          <div class="${tagFont} ${tagWeight} tracking-wider uppercase border-b pb-1 mb-1" 
+               style="font-size: ${tagSize}px; color: ${tagColor}; border-color: var(--border-color);">${tag}</div>
+          <div class="${bodyFont} ${bodyWeight} leading-snug" 
+               style="font-size: ${bodySize}px; color: ${bodyColor};">${content}</div>
+        `;
+        gridNode.appendChild(itemDiv);
+      });
+    }
   }
 
   // 背景图片上传与处理
@@ -584,6 +590,14 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
   function handleBgUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
+
+    // 简单类型/大小校验（可调整）
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (!file.type.startsWith('image/') || file.size > maxSize) {
+      alert('请上传小于 5MB 的图片文件（PNG/JPG/WEBP 等）。');
+      e.target.value = '';
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = function( event ) {
@@ -596,17 +610,19 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
   function updateBgStyles() {
     const bgLayer = document.getElementById('card-bg-layer');
     const overlayLayer = document.getElementById('card-overlay-layer');
-    const opacity = document.getElementById('cfg-bg-opacity').value;
-    const bgSize = document.getElementById('cfg-bg-size').value;
+    const opacity = document.getElementById('cfg-bg-opacity')?.value || 0.2;
+    const bgSize = document.getElementById('cfg-bg-size')?.value || 'cover';
 
-    if (bgImageData) {
+    if (bgImageData && bgLayer && overlayLayer) {
       bgLayer.style.display = 'block';
       bgLayer.style.backgroundImage = `url(${bgImageData})`;
       bgLayer.style.backgroundSize = bgSize;
+      bgLayer.style.backgroundPosition = 'center';
+      bgLayer.style.backgroundRepeat = 'no-repeat';
 
       overlayLayer.style.display = 'block';
       overlayLayer.style.opacity = opacity;
-    } else {
+    } else if (bgLayer && overlayLayer) {
       bgLayer.style.display = 'none';
       overlayLayer.style.display = 'none';
     }
@@ -614,50 +630,65 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
 
   // 净化与应用自定义 CSS
   function applyCustomCSS() {
-    const rawInput = document.getElementById('cfg-custom-css').value;
+    const rawInput = document.getElementById('cfg-custom-css')?.value || '';
     const statusNode = document.getElementById('css-status');
 
     if (/<[a-z][\s\S]*>/i.test(rawInput)) {
-      statusNode.innerText = "⚠️ 检测到 HTML 标签，已自动忽略";
-      statusNode.className = "text-amber-600 font-medium";
+      if (statusNode) {
+        statusNode.innerText = "⚠️ 检测到 HTML 标签，已自动忽略";
+        statusNode.className = "text-amber-600 font-medium";
+      }
       return;
     }
 
+    // 移除危险标签片段
     let cleanCSS = rawInput.replace(/<\/?script[^>]*>/gi, "");
     cleanCSS = cleanCSS.replace(/<\/?style[^>]*>/gi, "");
 
     document.getElementById('dynamic-custom-style').textContent = cleanCSS;
 
-    statusNode.innerText = "✓ CSS 格式已生效";
-    statusNode.className = "text-emerald-600 font-medium";
+    if (statusNode) {
+      statusNode.innerText = "✓ CSS 格式已生效";
+      statusNode.className = "text-emerald-600 font-medium";
+    }
   }
 
   // 一键清空 CSS 恢复默认
   function clearCustomCSS() {
-    document.getElementById('cfg-custom-css').value = '';
+    const textarea = document.getElementById('cfg-custom-css');
+    if (textarea) textarea.value = '';
     document.getElementById('dynamic-custom-style').textContent = '';
-    document.getElementById('css-status').innerText = "已重置";
-    document.getElementById('css-status').className = "text-slate-400";
+    const statusNode = document.getElementById('css-status');
+    if (statusNode) {
+      statusNode.innerText = "已重置";
+      statusNode.className = "text-slate-400";
+    }
   }
 
   // PNG 导出函数
   function exportPNG() {
     const node = document.getElementById('render-card-node');
-    htmlToImage.toPng(node, { pixelRatio: 2.5 })
+    if (!node) return;
+    // 可调整 pixelRatio（兼容性/内存）
+    const pixelRatio = 2;
+    htmlToImage.toPng(node, { pixelRatio })
       .then(function (dataUrl) {
         const link = document.createElement('a');
-        link.download = `${document.getElementById('cfg-title').value || 'challenge-card'}.png`;
+        const title = (document.getElementById('cfg-title')?.value || 'challenge-card').replace(/\s+/g, '-');
+        link.download = `${title}.png`;
         link.href = dataUrl;
         link.click();
       })
       .catch(function (error) {
         console.error('导出图片失败:', error);
-        alert('导出失败，请检查网络或浏览器是否支持。');
+        alert('导出失败，请检查网络或浏览器是否支持，或尝试降低导出分辨率。');
       });
   }
 
   window.onload = function() {
     renderCard();
+    applyCustomCSS();
+    updateBgStyles();
   };
 </script>
 
