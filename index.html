@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -227,22 +227,23 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
       </div>
 
       <!-- Tab 3: Custom CSS Editor -->
-	<div id="tab-panel-css" class="space-y-3 hidden">
- 	 <div class="flex items-center justify-between">
-    	<label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider">编写自制 CSS 样式</label>
-  	  <button onclick="insertSampleCSS()" class="text-[11px] text-indigo-600 hover:underline">插入示例CSS</button>
- 	 </div>
- 	 <textarea id="cfg-user-css" rows="8" placeholder="/* 渐变艺术框与圆角效果 */&#10;#render-card-node {&#10;  background: linear-gradient(135deg, #F9CDAD 0%, #FC9D9A 100%) !important;&#10;  color: #2D3748 !important;&#10;}&#10;&#10;.card-item {&#10;  background: rgba(255, 255, 255, 0.45) !important;&#10;  border-color: #83AF9B !important;&#10;  backdrop-filter: blur(4px);&#10;  border-radius: 12px !important;&#10;}&#10;&#10;#card-title-node {&#10;  color: #FE4365 !important;&#10;}"
- 	   class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-xs font-mono text-slate-800 resize-y leading-relaxed"></textarea>
- 	 <p class="text-[11px] text-slate-400">选择器参考：<code class="bg-slate-100 px-1 py-0.5 rounded">#render-card-node</code> (卡片外框), <code class="bg-slate-100 px-1 py-0.5 rounded">.card-item</code> (每日题目格子), <code class="bg-slate-100 px-1 py-0.5 rounded">#card-title-node</code> (主标题)。</p>
-	</div>
+      <div id="tab-panel-css" class="space-y-3 hidden">
+        <div class="flex items-center justify-between">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider">编写自制 CSS 样式</label>
+          <button onclick="insertSampleCSS()" class="text-[11px] text-indigo-600 hover:underline">插入示例CSS</button>
+        </div>
+        <textarea id="cfg-user-css" rows="8" placeholder="/* 渐变艺术框与圆角效果 */&#10;#render-card-node {&#10;  background: linear-gradient(135deg, #F9CDAD 0%, #FC9D9A 100%) !important;&#10;  color: #2D3748 !important;&#10;}&#10;&#10;.card-item {&#10;  background: rgba(255, 255, 255, 0.45) !important;&#10;  border-color: #83AF9B !important;&#10;  backdrop-filter: blur(4px);&#10;  border-radius: 12px !important;&#10;}&#10;&#10;#card-title-node {&#10;  color: #FE4365 !important;&#10;}"
+          class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition text-xs font-mono text-slate-800 resize-y leading-relaxed"></textarea>
+        <p class="text-[11px] text-slate-400">选择器参考：<code class="bg-slate-100 px-1 py-0.5 rounded">#render-card-node</code> (卡片外框), <code class="bg-slate-100 px-1 py-0.5 rounded">.card-item</code> (每日题目格子), <code class="bg-slate-100 px-1 py-0.5 rounded">#card-title-node</code> (主标题)。</p>
+      </div>
 
-	<div class="pt-2">
-  	<button onclick="exportCardImage()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium text-sm shadow-sm transition flex items-center justify-center gap-2">
-    	<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-    	生成并导出高精 PNG 图片
-  	</button>
-	</div>
+      <div class="pt-2">
+        <button onclick="exportCardImage()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium text-sm shadow-sm transition flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          生成并导出高精 PNG 图片
+        </button>
+      </div>
+    </section>
 
     <!-- Right Column: Card Preview Canvas Box -->
     <section class="lg:col-span-7 flex flex-col items-center justify-start w-full">
@@ -463,7 +464,7 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
     }
 
     function insertSampleCSS() {
-      elUserCss.value = `/* 渐变艺术框与圆角效果 */\n#render-card-node {\n  background: linear-gradient(135deg, #1e1e24 0%, #2a2a36 100%) !important;\n  color: #f0f0f0 !important;\n}\n.card-item {\n  background: rgba(255, 255, 255, 0.08) !important;\n  border-color: rgba(255, 255, 255, 0.15) !important;\n  backdrop-filter: blur(4px);\n  border-radius: 12px !important;\n}\n#card-title-node {\n  color: #ffb703 !important;\n}`;
+      elUserCss.value = `/* 渐变艺术框与圆角效果 */\n#render-card-node {\n  background: linear-gradient(135deg, #F9CDAD 0%, #FC9D9A 100%) !important;\n  color: #2D3748 !important;\n}\n\n.card-item {\n  background: rgba(255, 255, 255, 0.45) !important;\n  border-color: #83AF9B !important;\n  backdrop-filter: blur(4px);\n  border-radius: 12px !important;\n}\n\n#card-title-node {\n  color: #FE4365 !important;\n}`;
       syncCardState();
     }
 
