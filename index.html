@@ -459,7 +459,26 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
 
 </div>
 
-<style id="dynamic-custom-style"></style>
+
+
+  // Tab 切换逻辑
+  function switchTab(tab) {
+    const tabs = ['content', 'font', 'bg', 'css'];
+    tabs.forEach(t => {
+      const btn = document.getElementById(`tab-btn-${t}`);
+      const panel = document.getElementById(`tab-panel-${t}`);
+      if (!btn || !panel) return;
+      if (t === tab) {
+        btn.className = "pb-2 border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap";
+        panel.classList.remove('hidden');
+      } else {
+        btn.className = "pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap";
+        panel.classList.add('hidden');
+      }
+    });
+  }
+  
+  <style id="dynamic-custom-style"></style>
 
 <script>
   // 可复制 CSS 代码块
@@ -489,23 +508,6 @@ Day 7: 完全自由的摸鱼（本能与风格）</textarea>
           btnText.textContent = '复制';
         }, 2000);
       });
-  }
-
-  // Tab 切换逻辑
-  function switchTab(tab) {
-    const tabs = ['content', 'font', 'bg', 'css'];
-    tabs.forEach(t => {
-      const btn = document.getElementById(`tab-btn-${t}`);
-      const panel = document.getElementById(`tab-panel-${t}`);
-      if (!btn || !panel) return;
-      if (t === tab) {
-        btn.className = "pb-2 border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap";
-        panel.classList.remove('hidden');
-      } else {
-        btn.className = "pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap";
-        panel.classList.add('hidden');
-      }
-    });
   }
 
   // 主渲染函数
